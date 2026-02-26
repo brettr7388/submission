@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MP3 Frame Counter</title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                max-width: 500px;
+                margin: 60px auto;
+                padding: 0 20px;
+                background: #f8f9fa;
+                color: #333;
+            }
+            h1 { font-size: 1.4rem; }
+            .upload-section { margin: 24px 0; }
+            input[type="file"] {margin-bottom: 12px; display: block; }
+            button{
+                padding: 10px 20px;
+                background: #2563eb;
+                color:white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: .95rem;
+            }
+            button:disabled {background: #94a3b8; cursor: not-allowed; }
+            #result {
+                margin-top: 20px;
+                padding: 16px;
+                background: white;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
+                display: none;
+            }
+            #result.show {display: block; }
+            .count {font-size: 2rem; font-weight: 700; color:#2563eb; }
+            .error {color: #dc2626; }
+        </style>
+    </head>
+    <body>
+        <h1>MP3 Frame Counter</h1>
+        <p>Upload an MP3 file to count its MPEG1 Layer 3 frames.</p>
+
+        <div class = "upload-section">
+            <input type = "file" id = "fileInput" accept=".mp3,audio/mpeg" />
+            <button id= "uploadBtn" disabled>Count Frames</button>
+        </div>
+
+        <div id="result">
+            <div id = "resultContent"></div>
+        </div>
+
+        <script>
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+
+            fileInput.addEventListener('change', () => {
+                uploadBtn.disabled = !fileInput.files.length;
+                result.classList.remove('show');
+            });
+            uploadBtn.addEventListener('click', async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Counting...';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const response = await fetch('/file-upload', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error);
+
+                    resultContent.innerHTML = `<div class="count">${data.frameCount.toLocaleString()}</div><div>frames</div>`;
+                    resultContent.className = '';
+                }
+                catch (err) {
+                    resultContent.innerHTML = err.message;
+                    resultContent.className = 'error';
+                }
+                finally {
+                    result.classList.add('show');
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = 'Count Frames';
+                }
+            });
+        </script>
+    </body>
+</html>
