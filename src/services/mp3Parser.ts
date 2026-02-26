@@ -45,7 +45,7 @@ function parseFrameHeader(buffer: Buffer, offset:number): FrameHeader | null {
     const header = buffer.readUInt32BE(offset);
 
     //sync word check - top 11 bits must all be 1
-    if ((header & 0xffe00000) !== 0xffe00000)
+    if (((header & 0xffe00000) >>> 0) !== 0xffe00000)
         return null;
 
     //MPEG version must be MPEG1 (0x3)
