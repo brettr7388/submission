@@ -1,6 +1,6 @@
 //http://www.mp3-tech.org/programmer/frame_header.html
 
-//MPEG1 layer 3 bitrates in kbps (indicates 0x0 and 0xF are invalid)
+//MP3 bitrates in kbps (indicates 0x0 and 0xF are invalid)
 //Bitrate lookup table in kilobits per second
 //hexadecimal base-16
 const BITRATES: Record<number, number> = {
@@ -20,7 +20,7 @@ const BITRATES: Record<number, number> = {
   0xe: 320,
 };
 
-//MPEG1 sample rates in hertz (index 0x3 reserved)
+//MP3 sample rates in hertz (index 0x3 reserved)
 //sample rate lookup table
 //2 bit
 const SAMPLE_RATES: Record<number, number> = {
@@ -54,9 +54,9 @@ function parseFrameHeader(buffer: Buffer, offset: number): FrameHeader | null {
   //sync word check - top 11 bits must all be 1
   if ((header & 0xffe00000) >>> 0 !== 0xffe00000) return null;
 
-  //MPEG version must be MPEG1 (0x3)
+  //MPEG version must be MP3 (0x3)
   //shift right 19 bits then mask with 0x3(binary 11)
-  //0x3 = MPEG1
+  //0x3 = MP3
   if (((header >> 19) & 0x3) !== 0x3) return null;
 
   //layer must be Layer 3 (stored as 0x1)
@@ -75,7 +75,7 @@ function parseFrameHeader(buffer: Buffer, offset: number): FrameHeader | null {
   const padding = (header >> 9) & 0x1;
   const channelMode = (header >> 6) & 0x3;
 
-  //standard MPEG1 Layer 3 frame size formula
+  //standard MP3 frame size formula
   const frameSize = Math.floor((144 * (bitrate * 1000)) / sampleRate) + padding;
 
   return { frameSize, channelMode };

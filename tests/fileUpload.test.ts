@@ -12,7 +12,7 @@ describe('POST /file-upload', () => {
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.body).toEqual({ frameCount: 6089 });
   });
-  it('should return 400 when no file is upload', async () => {
+  it('should return 400 when no file is uploaded', async () => {
     const response = await request(app).post('/file-upload');
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('error');

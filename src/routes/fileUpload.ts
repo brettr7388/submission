@@ -5,9 +5,10 @@ import { countFrames } from '../services/mp3Parser';
 const router = Router();
 
 const upload = multer({
+    //file is kept in RAM as a buffer no disk write
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }, //50mb
-  fileFilter: (_req, file, cb) => {
+  limits: { fileSize: 50 * 1024 * 1024 }, //max 50MB
+  fileFilter: (_req, file, cb) => {     //only allows requests of MP3
     if (['audio/mpeg', 'audio/mp3'].includes(file.mimetype) || file.originalname.endsWith('.mp3')) {
       cb(null, true);
     } else {
@@ -34,6 +35,7 @@ router.post('/file-upload', (req: Request, res: Response, next: NextFunction) =>
       res.status(400).json({ error: 'No file Provided' });
       return;
     }
+    //success path start
     try {
       const frameCount = countFrames(req.file.buffer);
 
@@ -45,9 +47,11 @@ router.post('/file-upload', (req: Request, res: Response, next: NextFunction) =>
       }
       res.json({ frameCount });
     } catch (error) {
+        //parser errors
       next(error);
     }
   });
 });
 
+//to be used in app
 export { router as fileUploadRouter };
